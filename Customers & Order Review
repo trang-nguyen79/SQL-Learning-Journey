@@ -11,7 +11,7 @@ FROM JanSales
 ORDER BY orderID
 ;
 
--- 2. Review Customers * Orders
+-- 2. Review Customers * Orders then answer some questions
 
 -- After screening, and finding out that there are 2 invalid values in order_id colume of the customers table including '...' and 'Order ID'. These values should be removed out of the table
 
@@ -141,7 +141,8 @@ AND LENGTH(feb.orderID) = 6
 AND feb. orderID != 'Order ID'
 ;
 
--- 3. Review orders by date
+-- Question #8
+-- How many orders on date 02/18/19
 
 SELECT *
 FROM FebSales
@@ -165,11 +166,75 @@ WHERE orderdate like '02/18/19%'
 ;
 
 
--- 4. Order & location review
+-- Question #9
 -- List all the products sold in Los Angeles in February, and include how many of each were sold.
 
 SELECT Product, SUM(Quantity)
 FROM FebSales
 WHERE location like '%Los Angeles%'
 GROUP BY Product
+;
+
+-- Question #9
+-- Which locations in New York received at least 3 orders in January, and how many orders did they each receive?
+
+SELECT location,COUNT(orderID) AS total_order_by_location
+FROM JanSales
+WHERE location like '%NY%'
+AND orderdate like '01/%'
+GROUP BY location
+HAVING COUNT(orderID) >= 3
+ORDER BY COUNT(orderID) DESC
+;
+
+-- Question #10
+-- How many of each type of headphone were sold in February?
+SELECT Product, SUM(Quantity) AS total
+FROM FebSales
+WHERE Product like '%Headphones'
+GROUP BY Product
+;
+
+-- Question #11
+-- What was the average amount spent per account in February? 
+SELECT cus.acctnum, AVG(feb.Quantity*feb.price) AS avg_amount
+FROM customers cus
+
+LEFT JOIN FebSales feb
+ON cus.order_ID = feb.orderID
+
+GROUP BY cus.acctnum
+;
+
+SELECT SUM(feb.Quantity*feb.price)/ COUNT (cus.acctnum) AS avg_amount
+FROM customers cus
+
+INNER JOIN FebSales feb
+ON cus.order_ID = feb.orderID
+
+WHERE LENGTH(feb.orderID) = 6
+AND feb.orderID != 'Order ID'
+;
+
+-- Question #12
+-- What was the average quantity of products purchased per account in February?
+
+SELECT SUM(feb.Quantity)/ COUNT (cus.acctnum) AS avg_quantity_per_cus
+FROM customers cus
+
+INNER JOIN FebSales feb
+ON cus.order_ID = feb.orderID
+
+WHERE LENGTH(feb.orderID) = 6
+AND feb.orderID != 'Order ID'
+;
+
+-- Question #13
+-- Which product brought in the most revenue in Febuary and how much revenue did it bring in total?
+
+SELECT product, SUM(Quantity*price) AS revenue
+FROM FebSales 
+GROUP BY product
+ORDER BY SUM(Quantity*price) DESC
+LIMIT 1
 ;
