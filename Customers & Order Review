@@ -1,0 +1,142 @@
+-- In this SQL, I'm querying a database with multiple tables to quantify statistics about customer and order data. 
+-- I did this analysis by using SQLite Studio
+
+-- 1. Screening the tables
+
+SELECT *
+FROM customers
+;
+
+SELECT *
+FROM JanSales
+ORDER BY orderID
+;
+
+-- 2. Filter data 
+-- After screening, and finding out that there are 2 invalid values in order_id colume of the customers table including '...' and 'Order ID'. These values should be removed out of the table
+
+SELECT *
+FROM customers
+WHERE LENGTH(order_id) = 6
+AND order_id != 'Order ID'
+;
+
+-- Alot of blank rows in the JanSales table, and the orderID colume also contains invalid value which is 'Order ID' instead of the number. let remove them
+SELECT *
+FROM JanSales
+WHERE LENGTH(orderID) = 6
+AND orderID != 'Order ID'
+;
+
+
+-- 3. Overview numbers
+-- How many orders were placed in Jan
+
+
+SELECT COUNT(orderID)
+FROM JanSales
+WHERE LENGTH(orderID) = 6
+AND orderID != 'Order ID'
+;
+
+-- Question #2
+-- How many of those orders were for an iPhone?
+
+SELECT COUNT(Product)
+FROM JanSales
+WHERE Product = 'iPhone'
+;
+
+-- Question #3
+-- Select the customer account numbers for all the orders that were placed in February.
+
+SELECT *
+FROM FebSales
+WHERE LENGTH(orderID) = 6
+AND orderID != 'Order ID'
+;
+
+SELECT *
+FROM customers
+;
+
+SELECT DISTINCT cus.acctnum
+FROM customers cus
+
+INNER JOIN FebSales feb
+ON cus.order_id = feb.orderID
+
+;
+
+-- Question #4
+-- Which product was the cheapest one sold in January, and what was the price?
+SELECT *
+FROM JanSales
+WHERE LENGTH(orderID) = 6
+AND orderID != 'Order ID'
+;
+
+-- another way
+SELECT DISTINCT Product, min(price)
+FROM JanSales
+GROUP BY product
+ORDER BY price ASC
+LIMIT 1
+;
+
+-- Question #5
+-- What is the total revenue for each product sold in January?-- Revenue can be calculated using the number of products sold and the price of the products).
+SELECT *
+FROM JanSales
+;
+
+SELECT DISTINCT Product, SUM(Quantity)*price AS revenue_by_product
+FROM BIT_DB.JanSales
+WHERE LENGTH(orderID) = 6
+AND orderID != 'Order ID'
+GROUP BY Product
+;
+
+-- Question #6
+-- Which products were sold in February at 548 Lincoln St, Seattle, WA 98101, how many of each were sold, and what was the total revenue?
+
+SELECT *
+FROM FebSales
+WHERE LENGTH(orderID) = 6
+AND orderID != 'Order ID'
+;
+
+
+SELECT Product, SUM(Quantity), SUM(Quantity)*price AS revenue, location
+FROM FebSales
+WHERE location = '548 Lincoln St, Seattle, WA 98101'
+GROUP BY Product
+;
+
+-- Question #7
+-- How many customers ordered more than 2 products at a time in February, and what was the average amount spent for those customers?
+
+SELECT *
+FROM FebSales
+WHERE LENGTH(orderID) = 6
+AND orderID != 'Order ID'
+;
+
+SELECT *
+FROM customers
+WHERE LENGTH(order_id) = 6
+AND order_id != 'Order ID'
+GROUP BY order_id
+ORDER BY order_id
+;
+
+SELECT COUNT(DISTINCT cus.acctnum) AS num_bigorder, AVG(Quantity)*price AS avg_amount
+FROM FebSales feb 
+
+LEFT JOIN customers cus
+ON cus.order_ID = feb.orderID
+
+WHERE feb.Quantity >= 2
+AND LENGTH(feb.orderID) = 6
+AND feb. orderID != 'Order ID'
+;
