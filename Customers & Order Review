@@ -1,8 +1,7 @@
 -- In this SQL, I'm querying a database with multiple tables to quantify statistics about customer and order data. 
--- I did this analysis by using SQLite Studio
+-- I did this analysis by using SQLite Studio 
 
--- 1. Screening the tables
-
+-- 1. Reviewing the table
 SELECT *
 FROM customers
 ;
@@ -12,7 +11,8 @@ FROM JanSales
 ORDER BY orderID
 ;
 
--- 2. Filter data 
+-- 2. Review Customers * Orders
+
 -- After screening, and finding out that there are 2 invalid values in order_id colume of the customers table including '...' and 'Order ID'. These values should be removed out of the table
 
 SELECT *
@@ -139,4 +139,37 @@ ON cus.order_ID = feb.orderID
 WHERE feb.Quantity >= 2
 AND LENGTH(feb.orderID) = 6
 AND feb. orderID != 'Order ID'
+;
+
+-- 3. Review orders by date
+
+SELECT *
+FROM FebSales
+WHERE LENGTH(orderID) = 6
+AND orderID != 'Order ID'
+;
+
+SELECT orderdate
+FROM FebSales
+WHERE orderdate between '02/13/19 00:00' AND '02/18/19 00:00'
+;
+
+SELECT location
+FROM BIT_DB.FebSales 
+WHERE orderdate = '02/18/19 01:35'
+;
+
+SELECT sum(quantity), COUNT(DISTINCT orderdate)
+FROM BIT_DB.FebSales 
+WHERE orderdate like '02/18/19%'
+;
+
+
+-- 4. Order & location review
+-- List all the products sold in Los Angeles in February, and include how many of each were sold.
+
+SELECT Product, SUM(Quantity)
+FROM FebSales
+WHERE location like '%Los Angeles%'
+GROUP BY Product
 ;
